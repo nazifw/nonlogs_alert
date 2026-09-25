@@ -1,29 +1,31 @@
 # nonlogs_alert
 
-[nonlogs.io](https://nonlogs.io) borsasındaki hareketleri anlık olarak Telegram'a bildiren bot.
+**English** | [Türkçe](README.tr.md)
 
-## Ne bildirir?
+A Telegram bot that sends real-time alerts for activity on the [nonlogs.io](https://nonlogs.io) exchange.
 
-- **Gerçekleşen işlemler** — Anasayfadaki "Recent Trades" akışına düşen her yeni alış/satış (miktar, tutar, birim fiyat, yön, saat). `EXCLUDED_COINS` içindeki coinlerin pariteleri atlanır (varsayılan: `WOW`).
-- **Yeni order book emirleri** — Takip edilen paritelerde order book'a giren yeni alış/satış emirleri veya mevcut fiyat seviyesine yapılan eklemeler.
-- **İptal edilen emirler** — Order book'tan çekilen emirler. Eşleşme (işlem) sonucu azalan miktarlar iptal sayılmaz; bunlar zaten işlem bildirimi olarak gelir.
+## What does it notify?
 
-Tutarlar, USDT paritelerindeki son fiyatlar kullanılarak dolar karşılığıyla gösterilir. Saatler Türkiye saatindedir (TSİ).
+- **Executed trades** — Every new buy/sell that appears in the homepage "Recent Trades" feed (amount, value, unit price, direction, time). Pairs containing coins listed in `EXCLUDED_COINS` are skipped (default: `WOW`).
+- **New order book orders** — New buy/sell orders placed on tracked pairs, or additions to an existing price level.
+- **Cancelled orders** — Orders pulled from the order book. Decreases caused by matches (trades) are not counted as cancellations; those already arrive as trade alerts.
 
-## Kullanım
+Values are shown with their USD equivalent, using the last prices of the USDT pairs. Alert messages are in Turkish and timestamps are in Turkey time (TSİ, UTC+3).
 
-Botla sohbette:
+## Usage
 
-| Komut   | Açıklama                    |
-|---------|-----------------------------|
-| `/start` | Bildirimlere abone ol       |
-| `/stop`  | Bildirimleri durdur         |
+In a chat with the bot:
 
-Aboneler `subscribers.json` dosyasında tutulur. Botu engelleyen kullanıcılar listeden otomatik çıkarılır.
+| Command  | Description                  |
+|----------|------------------------------|
+| `/start` | Subscribe to alerts          |
+| `/stop`  | Stop alerts                  |
 
-## Kurulum
+Subscribers are stored in `subscribers.json`. Users who block the bot are removed from the list automatically.
 
-Python 3.13 gerekir.
+## Setup
+
+Requires Python 3.13.
 
 ```bash
 git clone https://github.com/nazifw/nonlogs_alert.git
@@ -33,51 +35,51 @@ source .venv/bin/activate      # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-Proje köküne bir `.env` dosyası oluştur:
+Create a `.env` file in the project root:
 
 ```env
-BOT_TOKEN=123456:ABC...        # @BotFather'dan alınan token (zorunlu)
+BOT_TOKEN=123456:ABC...        # token from @BotFather (required)
 ```
 
-Çalıştır:
+Run:
 
 ```bash
 python bot.py
 ```
 
-## Ayarlar
+## Configuration
 
-Tüm ayarlar ortam değişkeni (veya `.env`) üzerinden yapılır:
+All settings are set via environment variables (or `.env`):
 
-| Değişken | Varsayılan | Açıklama |
-|----------|------------|----------|
-| `BOT_TOKEN` | — | Telegram bot token'ı (zorunlu) |
-| `PAIRS` | GRIN, ARRR, FIRO, XMR, ZEC, DGB pariteleri | Order book'u takip edilecek pariteler, virgülle ayrılmış (ör. `XMR-USDT,ZEC-BTC`) |
-| `EXCLUDED_COINS` | `WOW` | İşlem bildirimlerinde atlanacak coinler |
-| `TRADES_POLL_SECONDS` | `3` | Recent Trades sorgulama aralığı (sn) |
-| `ORDERBOOK_POLL_SECONDS` | `5` | Order book sorgulama aralığı (sn) |
-| `NOTIFY_CANCELLED_ORDERS` | `true` | İptal edilen emirleri bildir |
-| `SUBSCRIBERS_FILE` | `subscribers.json` | Abone listesinin tutulduğu dosya |
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `BOT_TOKEN` | — | Telegram bot token (required) |
+| `PAIRS` | GRIN, ARRR, FIRO, XMR, ZEC, DGB pairs | Pairs whose order books are tracked, comma-separated (e.g. `XMR-USDT,ZEC-BTC`) |
+| `EXCLUDED_COINS` | `WOW` | Coins to skip in trade alerts |
+| `TRADES_POLL_SECONDS` | `3` | Recent Trades polling interval (seconds) |
+| `ORDERBOOK_POLL_SECONDS` | `5` | Order book polling interval (seconds) |
+| `NOTIFY_CANCELLED_ORDERS` | `true` | Send alerts for cancelled orders |
+| `SUBSCRIBERS_FILE` | `subscribers.json` | File where the subscriber list is stored |
 
 ## Deploy
 
-Repoda Heroku/Railway uyumlu bir `Procfile` var (`worker: python bot.py`). Platformda `BOT_TOKEN`'ı ortam değişkeni olarak tanımlaman yeterli. Abone listesinin yeniden başlatmalarda kaybolmaması için `SUBSCRIBERS_FILE`'ı kalıcı bir diske (volume) yönlendir.
+The repo includes a Heroku/Railway-compatible `Procfile` (`worker: python bot.py`). Just set `BOT_TOKEN` as an environment variable on the platform. To keep the subscriber list across restarts, point `SUBSCRIBERS_FILE` to a persistent disk (volume).
 
-## Nasıl çalışır?
+## How it works
 
-Bot, nonlogs.io sitesinin kendisinin kullandığı herkese açık JSON uç noktalarını belirli aralıklarla sorgular:
+The bot periodically polls the same public JSON endpoints that the nonlogs.io website itself uses:
 
-- `GET /api/executions/recent` — son işlemler
-- `GET /api/markets/{PAIR}/snapshot` — parite order book'u, son işlemler ve piyasa bilgileri
+- `GET /api/executions/recent` — recent trades
+- `GET /api/markets/{PAIR}/snapshot` — pair order book, recent trades and market info
 
-Her turda yeni snapshot bir öncekiyle karşılaştırılır. API emirleri fiyat seviyesine göre topladığı için tekil emirler değil, **seviyedeki toplam miktar değişimi** bildirilir. Bir seviyedeki azalmanın işlemle açıklanamayan kısmı iptal olarak değerlendirilir. API her tarafta en fazla 30 seviye döndürdüğü için görünür aralığın dışından kayan seviyeler yanlış bildirim üretmesin diye filtrelenir.
+On each round, the new snapshot is compared with the previous one. Since the API aggregates orders per price level, alerts report the **change in total amount at a price level**, not individual orders. The part of a decrease that can't be explained by trades is treated as a cancellation. The API returns at most 30 levels per side, so levels sliding in from outside the visible range are filtered out to avoid false alerts.
 
-Bot ilk açıldığında mevcut durumu yalnızca "görüldü" olarak kaydeder; bildirimler açılıştan sonraki değişikliklerle başlar.
+On startup, the bot only records the current state as "seen"; alerts start with changes after startup.
 
-## Dosyalar
+## Files
 
-| Dosya | İçerik |
-|-------|--------|
-| `bot.py` | Telegram komutları, abone yönetimi, sorgulama döngüleri, order book karşılaştırması |
-| `nonlogs_api.py` | nonlogs.io API istemcisi |
-| `messages.py` | Bildirim metinleri (HTML) |
+| File | Contents |
+|------|----------|
+| `bot.py` | Telegram commands, subscriber management, polling loops, order book diffing |
+| `nonlogs_api.py` | nonlogs.io API client |
+| `messages.py` | Alert message texts (HTML) |
