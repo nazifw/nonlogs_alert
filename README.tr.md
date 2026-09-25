@@ -56,7 +56,7 @@ Tüm ayarlar ortam değişkeni (veya `.env`) üzerinden yapılır:
 | `BOT_TOKEN` | — | Telegram bot token'ı (zorunlu) |
 | `PAIRS` | GRIN, ARRR, FIRO, XMR, ZEC, DGB pariteleri | Order book'u takip edilecek pariteler, virgülle ayrılmış (ör. `XMR-USDT,ZEC-BTC`) |
 | `EXCLUDED_COINS` | `WOW` | İşlem bildirimlerinde atlanacak coinler |
-| `TRADES_POLL_SECONDS` | `3` | Recent Trades sorgulama aralığı (sn) |
+| `TRADES_POLL_SECONDS` | `2` | Recent Trades sorgulama aralığı (sn) |
 | `ORDERBOOK_POLL_SECONDS` | `5` | Order book sorgulama aralığı (sn) |
 | `NOTIFY_CANCELLED_ORDERS` | `true` | İptal edilen emirleri bildir |
 | `SUBSCRIBERS_FILE` | `subscribers.json` | Abone listesinin tutulduğu dosya |

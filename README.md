@@ -56,7 +56,7 @@ All settings are set via environment variables (or `.env`):
 | `BOT_TOKEN` | — | Telegram bot token (required) |
 | `PAIRS` | GRIN, ARRR, FIRO, XMR, ZEC, DGB pairs | Pairs whose order books are tracked, comma-separated (e.g. `XMR-USDT,ZEC-BTC`) |
 | `EXCLUDED_COINS` | `WOW` | Coins to skip in trade alerts |
-| `TRADES_POLL_SECONDS` | `3` | Recent Trades polling interval (seconds) |
+| `TRADES_POLL_SECONDS` | `2` | Recent Trades polling interval (seconds) |
 | `ORDERBOOK_POLL_SECONDS` | `5` | Order book polling interval (seconds) |
 | `NOTIFY_CANCELLED_ORDERS` | `true` | Send alerts for cancelled orders |
 | `SUBSCRIBERS_FILE` | `subscribers.json` | File where the subscriber list is stored |

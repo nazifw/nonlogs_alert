@@ -35,7 +35,7 @@ DEFAULT_PAIRS = (
 PAIRS = [p.strip().upper() for p in os.getenv("PAIRS", DEFAULT_PAIRS).split(",") if p.strip()]
 # Recent Trades'te bu coinlerin geçtiği paritelerin işlemleri bildirilmez (ör. WOW-BTC, WOW-USDT)
 EXCLUDED_COINS = {c.strip().upper() for c in os.getenv("EXCLUDED_COINS", "WOW").split(",") if c.strip()}
-TRADES_POLL_SECONDS = float(os.getenv("TRADES_POLL_SECONDS", "3"))
+TRADES_POLL_SECONDS = float(os.getenv("TRADES_POLL_SECONDS", "2"))
 ORDERBOOK_POLL_SECONDS = float(os.getenv("ORDERBOOK_POLL_SECONDS", "5"))
 # Order book'tan iptal edilen/geri çekilen emirleri bildir. Eşleşme ile azalanlar
 # bildirilmez (onlar zaten Recent Trades bildirimi olarak geliyor).
